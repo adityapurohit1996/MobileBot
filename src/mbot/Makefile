@@ -7,7 +7,6 @@ LIBDEPS = $(call libdeps, $(LDFLAGS))
 
 BIN_DRIVE_SQUARE = $(BIN_PATH)/drive_square
 BIN_RPLIDAR_DRIVER = $(BIN_PATH)/rplidar_driver
-BIN_SWEEP_DRIVER = $(BIN_PATH)/sweep_driver
 BIN_MOTION_CONTROLLER = $(BIN_PATH)/motion_controller
 BIN_TIMESYNC = $(BIN_PATH)/timesync
 BIN_WIFI_READER = $(BIN_PATH)/wifi_reader
@@ -28,10 +27,6 @@ $(BIN_MOTION_CONTROLLER): motion_controller.o $(LIBDEPS)
 $(BIN_RPLIDAR_DRIVER): rplidar_driver.o $(LIBDEPS)
 	@echo "    $@"
 	@$(CXX) -o $@ $^ $(LDFLAGS)
-
-$(BIN_SWEEP_DRIVER): sweep_driver.o $(LIBDEPS)
-	@echo "    $@"
-	@$(CXX) -o $@ $^ $(LDFLAGS) $(LIB_PATH)/libsweep.so
 
 $(BIN_TIMESYNC): timesync.o $(LIBDEPS)
 	@echo "    $@"
