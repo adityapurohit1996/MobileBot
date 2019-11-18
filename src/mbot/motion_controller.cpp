@@ -67,11 +67,11 @@ public:
     {
         //////////// TODO: Implement your feedback controller here. //////////////////////
         
-        const float kPGain = 0.27f;
-        const float kDGain = 0.0f;
-        const float kIGain = 0.0003f;
+        const float kPGain = 1000.0f;
+        const float kDGain = 0.1f;
+        const float kIGain = 1000.0f;
 
-        const float kPTurnGain = 0.4f;
+        const float kPTurnGain = 10.0f;
         const float kDesiredSpeed = 0.2f;
         const float kMinSpeed = 0.1f;
         const float kTurnSpeed = 1.0f;
@@ -106,8 +106,8 @@ public:
             
             double targetHeading = std::atan2(target.y - pose.y, target.x - pose.x);
             double error = angle_diff(targetHeading, pose.theta);
-            std::cout << "targetHeading: " << targetHeading << ", pose Theta: " << pose.theta << std::endl;
-            std::cout << "Angle error:" << error << '\n';
+	
+	    std::cout << cmd.angular_v << " " << error << " " << std::endl;
 
             if(state_ == TURN)
             {
@@ -133,7 +133,7 @@ public:
                         if (turnspeed >= 0) {
                             turnspeed = std::min(turnspeed, kTurnMaxSpeed);
                         } else {
-                            turnspeed = std::max(-turnspeed, -kTurnMaxSpeed);
+                            turnspeed = std::max(turnspeed, -kTurnMaxSpeed);
                         }
                     }
 
