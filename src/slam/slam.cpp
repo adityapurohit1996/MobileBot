@@ -266,7 +266,7 @@ void OccupancyGridSLAM::updateMap(void)
     if(mode_ != localization_only)
     {
         // Process the map
-        mapper_.updateMap(currentScan_, currentPose_, map_);
+        mapper_.updateMap(currentScan_, previousPose_, currentPose_, map_); //CHANGED THIS to include previous pose as well
         haveMap_ = true;
     }
 
