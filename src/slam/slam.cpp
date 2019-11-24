@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cassert>
 #include <chrono>
+#include<iostream>
 
 OccupancyGridSLAM::OccupancyGridSLAM(int         numParticles,
                                      int8_t      hitOddsIncrease,
@@ -185,6 +186,7 @@ bool OccupancyGridSLAM::isReadyToUpdate(void)
 
 void OccupancyGridSLAM::runSLAMIteration(void)
 {
+    std::cout<<"running slam iteration"<<std::endl;
     copyDataForSLAMUpdate();
     initializePosesIfNeeded();
     
@@ -192,6 +194,7 @@ void OccupancyGridSLAM::runSLAMIteration(void)
     if(currentScan_.num_ranges > 100)//250)
     {
         updateLocalization();
+        std::cout<<"calling updateMap"<<std::endl;
         updateMap();
     }
     else 
@@ -266,6 +269,7 @@ void OccupancyGridSLAM::updateMap(void)
     if(mode_ != localization_only)
     {
         // Process the map
+        
         mapper_.updateMap(currentScan_, previousPose_, currentPose_, map_); //CHANGED THIS to include previous pose as well
         haveMap_ = true;
     }
@@ -276,7 +280,8 @@ void OccupancyGridSLAM::updateMap(void)
     {
         auto mapMessage = map_.toLCM();
         lcm_.publish(SLAM_MAP_CHANNEL, &mapMessage);
-        //map_.saveToFile("current.map");
+        map_.saveToFile("current.map");
+        std::cout<<"saving"<<std::endl;
 
     }
 

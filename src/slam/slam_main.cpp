@@ -3,6 +3,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include <thread>
 #include <csignal>
+#include<iostream>
 
 
 int main(int argc, char** argv)
@@ -52,7 +53,6 @@ int main(int argc, char** argv)
     std::thread slamThread([&slam]() {
         slam.runSLAM();
     });
-    
     while(true)
     {
         lcmConnection.handle();
