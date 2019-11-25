@@ -30,7 +30,7 @@ public:
     * \param    pose            Pose of the robot at the time when the last ray was measured
     * \param    map             OccupancyGrid instance to be updated
     */
-    void updateMap(const lidar_t& scan, const pose_xyt_t& pose, OccupancyGrid& map);
+    void updateMap(const lidar_t& scan, const pose_xyt_t& start_pose, const pose_xyt_t& end_pose, OccupancyGrid& map);
 
 private:
     

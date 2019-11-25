@@ -1,6 +1,8 @@
 #ifndef SLAM_SENSOR_MODEL_HPP
 #define SLAM_SENSOR_MODEL_HPP
 
+#include <cmath>
+
 class  lidar_t;
 class  OccupancyGrid;
 struct particle_t;
@@ -39,6 +41,11 @@ public:
 private:
     
     ///////// TODO: Add any private members for your SensorModel ///////////////////
+    int occupy_grid_threshold_;
+    int lidar_ray_gap_;
+    double LogLikelihoodPerRay(int x, int y, double theta);
+    double RangeInMap(int x, int y, double dx, double theta, const OccupancyGrid& map);  // Range in map in a direction
+    void NextGrid(int x, int y, double theta, int& nx, int& dy);
 };
 
 #endif // SLAM_SENSOR_MODEL_HPP

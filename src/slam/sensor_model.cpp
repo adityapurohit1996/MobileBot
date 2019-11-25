@@ -17,3 +17,12 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
     
     return 1.0;
 }
+
+double RangeInMap(int x, int y, double dx, double theta, const OccupancyGrid& map) {
+    // Get the range at (x, y) in direction theta in occupy map
+    
+}
+
+void NextGrid(int x, int y, double theta, int& nx, int& dy) {
+
+}
