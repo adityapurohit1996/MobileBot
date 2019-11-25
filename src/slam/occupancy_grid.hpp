@@ -1,6 +1,7 @@
 #ifndef MAPPING_OCCUPANCY_GRID_HPP
 #define MAPPING_OCCUPANCY_GRID_HPP
 
+#include <cmath>
 #include <common/point.hpp>
 #include <lcmtypes/occupancy_grid_t.hpp>
 #include <algorithm>
@@ -79,7 +80,6 @@ public:
                   float heightInMeters,
                   float metersPerCell);
     
-    
     // Accessors for the properties of the grid
     int   widthInCells (void) const { return width_; }
     float widthInMeters(void) const { return width_ * metersPerCell_; }
@@ -91,6 +91,68 @@ public:
     float cellsPerMeter(void) const { return cellsPerMeter_; }
     
     Point<float> originInGlobalFrame(void) const { return globalOrigin_; }
+
+    Point<int> GlobalFrameToCoord(float x, float y) {
+        Point<int> coord;
+        coord.x = int((x - globalOrigin_.x) / metersPerCell_);
+        coord.y = int((y - globalOrigin_.y) / metersPerCell_);
+        return coord;
+    }
+
+    Point<float> CoordToGlobalFrame(int x, int y) {
+        Point<float> global_frame;
+        global_frame.x = int(x * metersPerCell_ + globalOrigin_.x);
+        global_frame.y = int(y * metersPerCell_ + globalOrigin_.y);
+        return global_frame;
+    }
+
+    Point<int> BoundaryCellForArray(float x, float y, float theta) {
+        float ymax = globalOrigin_.y + height_ * metersPerCell_ / 2.0;
+        float ymin = globalOrigin_.y - height_ * metersPerCell_ / 2.0;
+        float xmax = globalOrigin_.x + width_ * metersPerCell_ / 2.0;
+        float xmin = globalOrigin_.x - width_ * metersPerCell_ / 2.0;
+        
+        if((theta > 0) && (theta < M_PI/2)) {
+            float dx_ymax = ctan(theta) * (ymax - y);
+            if((x + dx_ymax) < xmax) {
+                return GlobalFrameToCoord(x + dx_ymax, ymax);
+            } 
+            else {
+                float dy_xmax = tan(theta) * (xmax - x);
+                return GlobalFrameToCoord(xmax, dy_xmax);
+            }
+        }
+        elif((theta >= M_PI/2) && (theta < M_PI)) {
+            float dx_ymax = ctan(theta) * (ymax - y);
+            if((x + dx_ymax) > xmin) {
+                return GlobalFrameToCoord(x + dx_ymax, ymax);
+            } 
+            else {
+                float dy_xmin = tan(theta) * (xmin - x);
+                return GlobalFrameToCoord(xmin, dy_xmin);
+            }
+        }
+        elif((theta >= M_PI) && (theta < 3 * M_PI / 2)) {
+            float dx_ymin = ctan(theta) * (ymin - y);
+            if((x + dx_ymin) > xin) {
+                return GlobalFrameToCoord(x + dx_ymin, ymin);
+            } 
+            else {
+                float dy_xmin = tan(theta) * (xmin - x);
+                return GlobalFrameToCoord(xmin, dy_xmin);
+            }
+        }
+        else {
+            float dx_ymin = ctan(theta) * (ymin - y);
+            if((x + dx_ymin) > xin) {
+                return GlobalFrameToCoord(x + dx_ymin, ymin);
+            } 
+            else {
+                float dy_xmax = tan(theta) * (xmax - x);
+                return GlobalFrameToCoord(xmax, dy_xmax);
+            }
+        }
+    }
     
     void setOrigin(float x, float y);
 

@@ -5,6 +5,7 @@ class  lidar_t;
 class  OccupancyGrid;
 struct particle_t;
 
+
 /**
 * SensorModel implement a sensor model for computing the likelihood that a laser scan was measured from a
 * provided pose, give a map of the environment.
@@ -39,6 +40,18 @@ public:
 private:
     
     ///////// TODO: Add any private members for your SensorModel ///////////////////
+    float z_max_;
+    float variance_hit_;
+    float lambda_short_;
+    float weight_hit_;
+    float weight_short_;
+    float weight_max_;
+    float weight_rand_;
+
+    int8_t odds_threshold_;
+    int valid_threshold_;
+    float probability_sensor_ray(float z_t, float z_star);
+    float get_hit_point(float x0_m, float y0_m, float theta, const OccupancyGrid& map);
 };
 
 #endif // SLAM_SENSOR_MODEL_HPP
