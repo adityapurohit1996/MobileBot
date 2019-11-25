@@ -29,19 +29,22 @@ void Mapping::updateMap(const lidar_t& scan, const pose_xyt_t& start_pose, const
     std::cout<<"mapping: inside updatemap"<<std::endl;
     for(const auto&ray : movingScan){
 
-        rayInitial_x = ray.origin.x;
-        rayInitial_y = ray.origin.y;
-        originCell_x = rayInitial_x/cellSize;
-        originCell_y = rayInitial_y/cellSize;
+        rayInitial_x = 5 + ray.origin.x;
+        rayInitial_y = 5 + ray.origin.y;
+        originCell_x = floor(rayInitial_x/cellSize);
+        originCell_y = floor(rayInitial_y/cellSize);
 
         if (ray.range < kMaxLaserDistance_){
-            rayFinal_x = rayInitial_x + ray.range*cos(ray.theta + end_pose.theta);      //check!
-            rayFinal_y = rayInitial_y + ray.range*sin(ray.theta + end_pose.theta);
+            // rayFinal_x = rayInitial_x + ray.range*cos(ray.theta + end_pose.theta);      //check!
+            // rayFinal_y = rayInitial_y + ray.range*sin(ray.theta + end_pose.theta);
 
-            hitCell_x = round(rayFinal_x/cellSize);
-            hitCell_y = round(rayFinal_y/cellSize);          
+            rayFinal_x = rayInitial_x + ray.range*cos(ray.theta);      //check!
+            rayFinal_y = rayInitial_y + ray.range*sin(ray.theta);
+
+            hitCell_x = floor(rayFinal_x/cellSize);
+            hitCell_y = floor(rayFinal_y/cellSize);          
             
-            if (map.logOdds(hitCell_x, hitCell_y) < 127){
+            if (map.logOdds(hitCell_x, hitCell_y) <= 127 - kHitOdds_){
                 map.setLogOdds(hitCell_x, hitCell_y, map.logOdds(hitCell_x, hitCell_y) + kHitOdds_);
             }
             else
@@ -55,16 +58,21 @@ void Mapping::updateMap(const lidar_t& scan, const pose_xyt_t& start_pose, const
             dx = abs(hitCell_x - originCell_x);
             dy = abs(hitCell_y - originCell_y);
 
+            // dx = hitCell_x - originCell_x;
+            // dy = hitCell_y - originCell_y;
+
             sx = originCell_x < hitCell_x ? 1 : -1;
             sy = originCell_y < hitCell_y ? 1 : -1;
 
             err = dx - dy;
             x = originCell_x;
             y = originCell_y;
-            //std::cout<<x<<" "<<y<<" "<<hitCell_x<<" "<<hitCell_y<<" "<<sx<<" "<<sy<<std::endl;
+            // std::cout<<x<<" "<<y<<" "<<hitCell_x<<" "<<hitCell_y<<" "<<sx<<" "<<sy<<std::endl;
+            // std::cout<<map.logOdds(hitCell_x, hitCell_y)<<std::endl;
+
             while(x != hitCell_x || y != hitCell_y)
             {
-                if (map.logOdds(x, y) > -127)
+                if (map.logOdds(x, y) >= -127 + kMissOdds_)
                 {
                     map.setLogOdds(x, y, map.logOdds(x, y) - kMissOdds_);
                 }
