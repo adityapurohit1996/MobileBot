@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <vector>
+#include <math.h>
+#include <complex.h>
 
 typedef int8_t CellOdds;   ///< Type used to represent the data in a cell
 
@@ -113,7 +115,7 @@ public:
         float xmin = globalOrigin_.x - width_ * metersPerCell_ / 2.0;
         
         if((theta > 0) && (theta < M_PI/2)) {
-            float dx_ymax = ctan(theta) * (ymax - y);
+            float dx_ymax = tan(theta) * (ymax - y);
             if((x + dx_ymax) < xmax) {
                 return GlobalFrameToCoord(x + dx_ymax, ymax);
             } 
@@ -122,8 +124,8 @@ public:
                 return GlobalFrameToCoord(xmax, dy_xmax);
             }
         }
-        elif((theta >= M_PI/2) && (theta < M_PI)) {
-            float dx_ymax = ctan(theta) * (ymax - y);
+        else if((theta >= M_PI/2) && (theta < M_PI)) {
+            float dx_ymax = tan(theta) * (ymax - y);
             if((x + dx_ymax) > xmin) {
                 return GlobalFrameToCoord(x + dx_ymax, ymax);
             } 
@@ -132,9 +134,9 @@ public:
                 return GlobalFrameToCoord(xmin, dy_xmin);
             }
         }
-        elif((theta >= M_PI) && (theta < 3 * M_PI / 2)) {
-            float dx_ymin = ctan(theta) * (ymin - y);
-            if((x + dx_ymin) > xin) {
+        else if((theta >= M_PI) && (theta < 3 * M_PI / 2)) {
+            float dx_ymin = tan(theta) * (ymin - y);
+            if((x + dx_ymin) > xmin) {
                 return GlobalFrameToCoord(x + dx_ymin, ymin);
             } 
             else {
@@ -143,8 +145,8 @@ public:
             }
         }
         else {
-            float dx_ymin = ctan(theta) * (ymin - y);
-            if((x + dx_ymin) > xin) {
+            float dx_ymin = tan(theta) * (ymin - y);
+            if((x + dx_ymin) > xmin) {
                 return GlobalFrameToCoord(x + dx_ymin, ymin);
             } 
             else {
