@@ -32,6 +32,37 @@ public:
     /**
     * Constructor for ActionModel.
     */
+int64_t utime_previous = 0;
+    int64_t utime_current = utime_previous;
+
+    float x_previous = 0;
+    float y_previous = 0;
+    float theta_previous= 0;
+
+    float x_current = x_previous;
+    float y_current = y_previous;
+    float theta_current = theta_previous;
+
+    float alpha = 0;
+    float delta_s = 0;
+    float delta_s_2 = 0;
+    float delta_theta = 0;
+    float delta_theta_alpha = 0;
+
+    float delta_y = 0;
+    float delta_x = 0;
+
+    float k1 = 0.1;
+    float k2 = 0.1;
+
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution<float> d_alpha{0, k1*alpha};
+    std::normal_distribution<float> d_delta_s{0, k2*delta_s};
+    std::normal_distribution<float> d_delta_theta_alpha{0, k1*delta_theta_alpha};
+
+
+
     ActionModel(void);
     
     /**

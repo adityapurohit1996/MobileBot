@@ -16,8 +16,8 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
     ///////////// TODO: Implement your sensor model for calculating the likelihood of a particle given a laser scan //////////
     float log_likelihood = 0;
     int valid_array_count = 0;
-    for(int i = 0; i < scan.num_ranges; i++) {
-        float range_measure = scan.ranges[i];
+    for(int i = 0; i < scan.num_ranges(); i++) {
+        float range_measure = scan.ranges(i);
         float range_map = get_hit_point(sample.pose.x, sample.pose.y, sample.pose.theta, map);
         if(range_map > 0) {
             log_likelihood += log(probability_sensor_ray(range_measure, range_map));
@@ -30,7 +30,7 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
     return exp(log_likelihood / valid_array_count);
 }
 
-double SensorModel::probability_sensor_ray(double z_t, double z_star) {
+float SensorModel::probability_sensor_ray(double z_t, double z_star) {
     // p_hit
     float p_hit;
     if((z_t <= z_max_) && (z_t >= 0)) {
@@ -71,7 +71,7 @@ double SensorModel::probability_sensor_ray(double z_t, double z_star) {
 
 }
 
-double SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const OccupancyGrid& map) {
+float SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const OccupancyGrid& map) {
     /*
     x0_m, y0_m : position of robot in meter
     theta : theta angle for array
@@ -82,14 +82,15 @@ double SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const Occ
     int y0 = coord.y;
     int x1 = boundary_point.x;
     int y1 = boundary_point.y;
-    dx = abs(x1 - x0);
-    dy = abs(y1 - y0);
-    sx = x0<x1 ? 1 : -1;
-    sy = y0<y1 ? 1 : -1;
-    err = dx - dy;
-    x = x0;
-    y = y0;
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int sx = x0<x1 ? 1 : -1;
+    int sy = y0<y1 ? 1 : -1;
+    int err = dx - dy;
+    int x = x0;
+    int y = y0;
     int8_t cell_odd;
+    int e2=0;
     while(x != x1 || y != y1) {
         e2 = 2 * err;
         if (e2 >= -dy) {
