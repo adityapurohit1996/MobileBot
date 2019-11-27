@@ -48,9 +48,14 @@ particle_t ActionModel::applyAction(const particle_t& sample)
     float e2 = d_delta_s(gen);
 	float e3 = d_delta_theta_alpha(gen);
 
-    x_current = x_previous + (delta_s + e2)*cos(theta_previous + alpha + e1);
-    y_current = y_previous + (delta_s + e2)*sin(theta_previous + alpha + e1);
-    theta_current = theta_previous + e1 + e3;
+	
+    float x_particle = x_previous + (delta_s + e2)*cos(theta_previous + alpha + e1);
+    float y_particle = y_previous + (delta_s + e2)*sin(theta_previous + alpha + e1);
+    float theta_particle = theta_previous + e1 + e3;
+
+	sample.pose = (x_particle, y_particle, theta_particle);
+	sample.parent_pose = (x_previous, y_previous, theta_previous);
+	
 
 
 
