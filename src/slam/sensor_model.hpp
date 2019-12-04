@@ -2,11 +2,11 @@
 #define SLAM_SENSOR_MODEL_HPP
 
 #include <cmath>
-
-class  lidar_t;
-class  OccupancyGrid;
-struct particle_t;
-
+#include <slam/moving_laser_scan.hpp>
+#include <slam/occupancy_grid.hpp>
+#include <lcmtypes/particle_t.hpp>
+#include <common/grid_utils.hpp>
+#include <lcmtypes/lidar_t.hpp>
 
 /**
 * SensorModel implement a sensor model for computing the likelihood that a laser scan was measured from a
@@ -43,16 +43,16 @@ public:
 private:
     
     ///////// TODO: Add any private members for your SensorModel ///////////////////
-    float z_max_;
-    float variance_hit_;
-    float lambda_short_;
-    float weight_hit_;
-    float weight_short_;
-    float weight_max_;
-    float weight_rand_;
+    float z_max_ = 6.0;
+    float variance_hit_ = 1.0;
+    float lambda_short_ = 0.5;
+    float weight_hit_   = 0.25;
+    float weight_short_ = 0.25;
+    float weight_max_   = 0.25;
+    float weight_rand_  = 0.25;
 
-    int8_t odds_threshold_;
-    int valid_threshold_;
+    int8_t odds_threshold_ = 8;
+    int valid_threshold_ = 5;
     float probability_sensor_ray(float z_t, float z_star);
     float get_hit_point(float x0_m, float y0_m, float theta, const OccupancyGrid& map);
 };

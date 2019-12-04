@@ -13,51 +13,56 @@ ActionModel::ActionModel(void)
 	
 }
 
-
 bool ActionModel::updateAction(const pose_xyt_t& odometry)
 {
     ////////////// TODO: Implement code here to compute a new distribution of the motion of the robot ////////////////
- 	x_current = odometry.x;
- 	y_current = odometry.y;
- 	theta_current = odometry.theta;
+ 	float x = odometry.x;
+ 	float y = odometry.y;
+ 	float theta = odometry.theta;
 
- 	delta_x = x_current - x_previous;
- 	delta_y = y_current - y_previous;
- 	delta_theta = theta_current - theta_previous;
+ 	float dx = x - x_;
+	float dy = y - y_;
+	float dtheta = theta - theta_;
+
+	ds_ = sqrt(dx * dx + dy * dy);
+	alpha_ = atan2(dy, dx) - theta_;
+	alpha2_ = dtheta - alpha_;
  	
- 	alpha = atan2(delta_y, delta_x) - theta_previous;
- 	delta_theta_alpha = delta_theta - alpha;
- 	delta_s_2 = delta_x*delta_x + delta_y*delta_y;
- 	delta_s = sqrt(delta_s_2);
- 	x_previous = x_current;
- 	y_previous = y_current;
- 	theta_previous = theta_current;
-
+	// update internal value
+	x_ = x;
+	y_ = y;
+	theta_ = theta;
+	u_time_ = odometry.utime;
     return false;
 }
-
 
 particle_t ActionModel::applyAction(const particle_t& sample)
 {
     ////////////// TODO: Implement your code for sampling new poses from the distribution computed in updateAction //////////////////////
     // Make sure you create a new valid particle_t. Don't forget to set the new time and new parent_pose.
-
+    // create distribution
+	std::normal_distribution<> de1{0, k1_ * alpha_};
+	std::normal_distribution<> de2{0, k2_ * ds_};
+	std::normal_distribution<> de3{0, k1_ * alpha2_};
 	
+	float e1 = de1(gen);
+    float e2 = de2(gen);
+	float e3 = de3(gen);
 
-    float e1 = d_alpha(gen);
-    float e2 = d_delta_s(gen);
-	float e3 = d_delta_theta_alpha(gen);
+    float new_x = sample.pose.x + (ds_ + e2) * cos(sample.pose.theta + alpha_ + e1);
+	float new_y = sample.pose.x + (ds_ + e2) * sin(sample.pose.theta + alpha_ + e1);
+	float new_theta = sample.pose.theta + e1 + e3;
+    
+	particle_t new_sample;
+	new_sample.pose.x = new_x;
+	new_sample.pose.y = new_y;
+	new_sample.pose.theta = new_theta;
+	new_sample.pose.utime = u_time_;
 
+	new_sample.parent_pose.x = sample.pose.x;
+	new_sample.parent_pose.y = sample.pose.y;
+	new_sample.parent_pose.theta = sample.pose.theta;
+	new_sample.parent_pose.utime = sample.pose.utime;
 	
-    float x_particle = x_previous + (delta_s + e2)*cos(theta_previous + alpha + e1);
-    float y_particle = y_previous + (delta_s + e2)*sin(theta_previous + alpha + e1);
-    float theta_particle = theta_previous + e1 + e3;
-
-	sample.pose = (x_particle, y_particle, theta_particle);
-	sample.parent_pose = (x_previous, y_previous, theta_previous);
-	
-
-
-
-    return sample;
+    return new_sample;
 }

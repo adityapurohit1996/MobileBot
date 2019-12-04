@@ -1,8 +1,4 @@
 #include <slam/sensor_model.hpp>
-#include <slam/moving_laser_scan.hpp>
-#include <slam/occupancy_grid.hpp>
-#include <lcmtypes/particle_t.hpp>
-#include <common/grid_utils.hpp>
 
 
 SensorModel::SensorModel(void)
@@ -10,14 +6,13 @@ SensorModel::SensorModel(void)
     ///////// TODO: Handle any initialization needed for your sensor model
 }
 
-
 double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, const OccupancyGrid& map)
 {
     ///////////// TODO: Implement your sensor model for calculating the likelihood of a particle given a laser scan //////////
     float log_likelihood = 0;
     int valid_array_count = 0;
-    for(int i = 0; i < scan.num_ranges(); i++) {
-        float range_measure = scan.ranges(i);
+    for(int i = 0; i < scan.num_ranges; i++) {
+        float range_measure = scan.ranges[i];
         float range_map = get_hit_point(sample.pose.x, sample.pose.y, sample.pose.theta, map);
         if(range_map > 0) {
             log_likelihood += log(probability_sensor_ray(range_measure, range_map));
@@ -30,7 +25,7 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
     return exp(log_likelihood / valid_array_count);
 }
 
-float SensorModel::probability_sensor_ray(double z_t, double z_star) {
+float SensorModel::probability_sensor_ray(float z_t, float z_star) {
     // p_hit
     float p_hit;
     if((z_t <= z_max_) && (z_t >= 0)) {
@@ -76,8 +71,8 @@ float SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const Occu
     x0_m, y0_m : position of robot in meter
     theta : theta angle for array
     */
-    Point<int> coord = map->GlobalFrameToCoord(x0_m, y0_m);
-    Point<int> boundary_point = map->BoundaryCellForArray(x0_m, y0_m, theta);
+    Point<int> coord = map.GlobalFrameToCoord(x0_m, y0_m);
+    Point<int> boundary_point = map.BoundaryCellForArray(x0_m, y0_m, theta);
     int x0 = coord.x;
     int y0 = coord.y;
     int x1 = boundary_point.x;
@@ -105,20 +100,11 @@ float SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const Occu
         cell_odd = map(x, y);
         if(cell_odd > odds_threshold_) {
             // meet with the obstacle
-            Point<float> hit_global_frame = map->CoordToGlobalFrame(x, y);
+            Point<float> hit_global_frame = map.CoordToGlobalFrame(x, y);
             return sqrt(pow(hit_global_frame.x - x0_m, 2) + pow(hit_global_frame.y - y0_m, 2));
         }
     }
     // if not hit after all rounds?
     return -1;  // -1 means no hits.
     
-}
-
-double RangeInMap(int x, int y, double dx, double theta, const OccupancyGrid& map) {
-    // Get the range at (x, y) in direction theta in occupy map
-    
-}
-
-void NextGrid(int x, int y, double theta, int& nx, int& dy) {
-
 }

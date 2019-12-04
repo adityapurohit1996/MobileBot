@@ -94,21 +94,21 @@ public:
     
     Point<float> originInGlobalFrame(void) const { return globalOrigin_; }
 
-    Point<int> GlobalFrameToCoord(float x, float y) {
+    Point<int> GlobalFrameToCoord(float x, float y) const {
         Point<int> coord;
         coord.x = int((x - globalOrigin_.x) / metersPerCell_);
         coord.y = int((y - globalOrigin_.y) / metersPerCell_);
         return coord;
     }
 
-    Point<float> CoordToGlobalFrame(int x, int y) {
+    Point<float> CoordToGlobalFrame(int x, int y) const {
         Point<float> global_frame;
         global_frame.x = int(x * metersPerCell_ + globalOrigin_.x);
         global_frame.y = int(y * metersPerCell_ + globalOrigin_.y);
         return global_frame;
     }
 
-    Point<int> BoundaryCellForArray(float x, float y, float theta) {
+    Point<int> BoundaryCellForArray(float x, float y, float theta) const {
         float ymax = globalOrigin_.y + height_ * metersPerCell_ / 2.0;
         float ymin = globalOrigin_.y - height_ * metersPerCell_ / 2.0;
         float xmax = globalOrigin_.x + width_ * metersPerCell_ / 2.0;
