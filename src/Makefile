@@ -1,8 +1,9 @@
-# Only add your directories to this folder if you are 100% sure that
+#ly add your directories to this folder if you are 100% sure that
 # it will always compile without warnings.
-SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam planning apps mbot optitrack
-MBOT_SUBDIRS = lcmtypes common vx/math slam planning mbot
-LAPTOP_SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam planning apps
+# NOTE: REMOVED planning FROM SUBDIRS FOR TESTING ADD IT COMPILING ISSUES 
+SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam apps mbot optitrack
+MBOT_SUBDIRS = lcmtypes common vx/math slam mbot
+LAPTOP_SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam apps
 
 MAKEFLAGS += --no-print-directory
 
@@ -25,3 +26,4 @@ clean:
 	@for dir in $(SUBDIRS); do \
 	echo "clean [$$dir]"; $(MAKE) -C $$dir clean || exit 2; done
 	@rm -f *~
+
