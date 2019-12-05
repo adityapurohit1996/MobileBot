@@ -33,7 +33,13 @@ bool ActionModel::updateAction(const pose_xyt_t& odometry)
 	y_ = y;
 	theta_ = theta;
 	u_time_ = odometry.utime;
-    return false;
+
+	if(ds_ >= move_threshold_) {
+		return true;
+	}
+	else{
+		return false;
+	}
 }
 
 particle_t ActionModel::applyAction(const particle_t& sample)
@@ -44,7 +50,6 @@ particle_t ActionModel::applyAction(const particle_t& sample)
 	std::normal_distribution<> de1{0, k1_ * alpha_};
 	std::normal_distribution<> de2{0, k2_ * ds_};
 	std::normal_distribution<> de3{0, k1_ * alpha2_};
-	
 	float e1 = de1(gen);
     float e2 = de2(gen);
 	float e3 = de3(gen);
