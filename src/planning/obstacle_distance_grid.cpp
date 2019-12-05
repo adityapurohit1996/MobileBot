@@ -64,11 +64,12 @@ void ObstacleDistanceGrid::setDistances(const OccupancyGrid& map)
 
         // updating the map
         while (cells2Update != 0){
-            for(int cell_y = 0; cell_y < height_; ++cell_y){
-                for (int cell_x = 0; cell_x < width_; ++cell_x){
-
-                    if (distance(cell_x, cell_y) == curr_distance){
-
+            for(int cell_y = 0; cell_y < height_; ++cell_y)
+            {
+                for (int cell_x = 0; cell_x < width_; ++cell_x)
+                {
+                    if (distance(cell_x, cell_y) == curr_distance)
+                    {
                         //eight-point connectivity
                         if ((cell_x - 1 >= 0) && (distance(cell_x - 1, cell_y) == 0)){
                             cells_[cellIndex(cell_x-1, cell_y)] = curr_distance + 1;
