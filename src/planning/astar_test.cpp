@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     std::vector<test_func> tests = { 
         test_empty_grid,
         test_filled_grid,
-        test_narrow_constriction_grid,
+        //test_narrow_constriction_grid,
         test_wide_constriction_grid,
         test_convex_grid,
         test_maze_grid

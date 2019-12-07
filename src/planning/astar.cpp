@@ -1,4 +1,4 @@
-#include <planning/astar.hpp>
+#include "astar.hpp"
 #include <planning/obstacle_distance_grid.hpp>
 #include <array>
 #include <cmath>
@@ -17,12 +17,14 @@ struct Node
     int parentY;
      float hCost;
 };
+/*
 inline bool operator < (const Node& lhs, const Node& rhs)
 {//We need to overload "<" to put our struct into a set
     return lhs.hCost < rhs.hCost;
 }
+*/
 
-static bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX) 
+bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX) 
 { //If our Node is an obstacle it is not valid
         if ((int)(distances_x_y) == 0) 
         {
@@ -42,7 +44,7 @@ static bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX)
         }        
 }
 
-static bool isDestination(int x, int y, pose_xyt_t goal) 
+bool isDestination(int x, int y, pose_xyt_t goal) 
 {
     if (x == goal.x && y == goal.y) 
     {
@@ -51,14 +53,14 @@ static bool isDestination(int x, int y, pose_xyt_t goal)
     return false;
 }
 
-static double calculateH(int x, int y, pose_xyt_t goal) 
+double calculateH(int x, int y, pose_xyt_t goal) 
 {
         double H = (sqrt((x - goal.x)*(x - goal.x)
             + (y - goal.y)*(y - goal.y)));
         return H;
 }
 
-static robot_path_t makePath(array<array<Node, MAXIMUM_Y>, MAXIMUM_X> map, pose_xyt_t goal) 
+robot_path_t makePath(Node map[][MAXIMUM_Y], pose_xyt_t goal) 
 {
             cout << "Found a path" << endl;
             int x = goal.x;
@@ -95,12 +97,15 @@ robot_path_t search_for_path(pose_xyt_t start,
                              const ObstacleDistanceGrid& distances,
                              const SearchParams& params)
 {
+
     cout<<"Finding path by A_star"<<endl;
-    const int X_MAX = distances.widthInCells();
-    const int Y_MAX = distances.heightInCells();
-
-
     robot_path_t path;
+    
+    int X_MAX = distances.widthInCells();
+    int Y_MAX = distances.heightInCells();
+    
+    
+    
     
     if (isValid(goal.x,goal.y,distances(goal.x,goal.y),X_MAX,Y_MAX) == false) 
     {
@@ -113,20 +118,22 @@ robot_path_t search_for_path(pose_xyt_t start,
     }
     else
     {
+        
         bool closedList[X_MAX][Y_MAX];
-        array<array < Node, MAXIMUM_Y>, MAXIMUM_X> allMap; //used because c++ does not like variables in template declaration
+        Node allMap[X_MAX][MAXIMUM_Y]; //used because c++ does not like variables in template declaration
+        
         for (int x = 0; x < X_MAX; x++) {
             for (int y = 0; y < Y_MAX; y++) {
+                
                 allMap[x][y].hCost = FLT_MAX;
                 allMap[x][y].parentX = -1;
                 allMap[x][y].parentY = -1;
                 allMap[x][y].x = x;
                 allMap[x][y].y = y;
-
                 closedList[x][y] = false;
             }
         }
-
+        
         //Initialize our starting list
         int x = start.x;
         int y = start.y;
@@ -140,6 +147,7 @@ robot_path_t search_for_path(pose_xyt_t start,
 
         while (!openList.empty()&&openList.size()<X_MAX*Y_MAX) 
         {
+            cout<<"Inside while"<<endl;
             Node node;
             do 
             {
@@ -179,6 +187,7 @@ robot_path_t search_for_path(pose_xyt_t start,
                             allMap[x + newX][y + newY].parentX = x;
                             allMap[x + newX][y + newY].parentY = y;
                             destinationFound = true;
+                            cout<<"Found path"<<endl;
                             path =  makePath(allMap, goal);
                         }
                         else if (closedList[x + newX][y + newY] == false)
@@ -209,8 +218,9 @@ robot_path_t search_for_path(pose_xyt_t start,
             {
                 cout << "Destination not found" << endl;
             }
+            
     }
-
+    
     path.utime = start.utime;
     path.path.insert(path.path.begin(),start);    
     path.path_length = path.path.size();
