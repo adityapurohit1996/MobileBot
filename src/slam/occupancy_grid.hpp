@@ -103,55 +103,55 @@ public:
 
     Point<float> CoordToGlobalFrame(int x, int y) const {
         Point<float> global_frame;
-        global_frame.x = int(x * metersPerCell_ + globalOrigin_.x);
-        global_frame.y = int(y * metersPerCell_ + globalOrigin_.y);
+        global_frame.x = x * metersPerCell_ + globalOrigin_.x;
+        global_frame.y = y * metersPerCell_ + globalOrigin_.y;
         return global_frame;
     }
 
     Point<int> BoundaryCellForArray(float x, float y, float theta) const {
-        float ymax = globalOrigin_.y + height_ * metersPerCell_ / 2.0;
-        float ymin = globalOrigin_.y - height_ * metersPerCell_ / 2.0;
-        float xmax = globalOrigin_.x + width_ * metersPerCell_ / 2.0;
-        float xmin = globalOrigin_.x - width_ * metersPerCell_ / 2.0;
+        float ymax = globalOrigin_.y + height_ * metersPerCell_;
+        float ymin = globalOrigin_.y - height_ * metersPerCell_;
+        float xmax = globalOrigin_.x + width_ * metersPerCell_;
+        float xmin = globalOrigin_.x - width_ * metersPerCell_;
         
         if((theta > 0) && (theta < M_PI/2)) {
-            float dx_ymax = tan(theta) * (ymax - y);
+            float dx_ymax = (ymax - y) / tan(theta);
             if((x + dx_ymax) < xmax) {
                 return GlobalFrameToCoord(x + dx_ymax, ymax);
             } 
             else {
                 float dy_xmax = tan(theta) * (xmax - x);
-                return GlobalFrameToCoord(xmax, dy_xmax);
+                return GlobalFrameToCoord(xmax, y + dy_xmax);
             }
         }
         else if((theta >= M_PI/2) && (theta < M_PI)) {
-            float dx_ymax = tan(theta) * (ymax - y);
+            float dx_ymax = (ymax - y) / tan(theta);
             if((x + dx_ymax) > xmin) {
                 return GlobalFrameToCoord(x + dx_ymax, ymax);
             } 
             else {
                 float dy_xmin = tan(theta) * (xmin - x);
-                return GlobalFrameToCoord(xmin, dy_xmin);
+                return GlobalFrameToCoord(xmin, y + dy_xmin);
             }
         }
         else if((theta >= M_PI) && (theta < 3 * M_PI / 2)) {
-            float dx_ymin = tan(theta) * (ymin - y);
+            float dx_ymin = (ymin - y) / tan(theta);
             if((x + dx_ymin) > xmin) {
                 return GlobalFrameToCoord(x + dx_ymin, ymin);
             } 
             else {
                 float dy_xmin = tan(theta) * (xmin - x);
-                return GlobalFrameToCoord(xmin, dy_xmin);
+                return GlobalFrameToCoord(xmin, y + dy_xmin);
             }
         }
         else {
-            float dx_ymin = tan(theta) * (ymin - y);
-            if((x + dx_ymin) > xmin) {
+            float dx_ymin = (ymin - y) / tan(theta);
+            if((x + dx_ymin) < xmax) {
                 return GlobalFrameToCoord(x + dx_ymin, ymin);
             } 
             else {
                 float dy_xmax = tan(theta) * (xmax - x);
-                return GlobalFrameToCoord(xmax, dy_xmax);
+                return GlobalFrameToCoord(xmax, y + dy_xmax);
             }
         }
     }

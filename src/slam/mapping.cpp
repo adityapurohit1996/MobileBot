@@ -19,7 +19,7 @@ void Mapping::updateMap(const lidar_t& scan, const pose_xyt_t& start_pose, const
 {
     //////////////// TODO: Implement your occupancy grid algorithm here ///////////////////////
     MovingLaserScan movingScan(scan, start_pose, end_pose);     //full scan
-
+    std::cout << "Again" << std::endl;
     adjusted_ray_t ray ;     //single ray
 
     float cellSize = 0.05;      

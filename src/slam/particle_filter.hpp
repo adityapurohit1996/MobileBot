@@ -72,13 +72,16 @@ public:
     */
     particles_t particles(void) const;
     
+    // Debug Test Gt likelihood
+    double UpdateGroundTruth(const pose_xyt_t& pose, const lidar_t& scan);
+
+    ActionModel actionModel_;   // Action model to apply to particles on each update
+    SensorModel sensorModel_;   // Sensor model to compute particle weights
+    
 private:
     
     std::vector<particle_t> posterior_;     // The posterior distribution of particles at the end of the previous update
     pose_xyt_t posteriorPose_;              // Pose estimate associated with the posterior distribution
-    
-    ActionModel actionModel_;   // Action model to apply to particles on each update
-    SensorModel sensorModel_;   // Sensor model to compute particle weights
     
     int kNumParticles_;         // Number of particles to use for estimating the pose
     
@@ -89,7 +92,7 @@ private:
                                                        const OccupancyGrid&   map);
     pose_xyt_t estimatePosteriorPose(const std::vector<particle_t>& posterior);
     // Distribution Parameters
-    float pose_sigmas_[3] = {0.1, 0.1, 0.05};
+    float pose_sigmas_[3] = {0.05, 0.05, 0.05};
 };
 
 #endif // SLAM_PARTICLE_FILTER_HPP

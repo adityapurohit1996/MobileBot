@@ -33,8 +33,10 @@ bool ActionModel::updateAction(const pose_xyt_t& odometry)
 	y_ = y;
 	theta_ = theta;
 	u_time_ = odometry.utime;
-
-	if(ds_ >= move_threshold_) {
+	// std::cout <<"=======================================" << std::endl;
+	// std::cout << "x: " << x << ", y:" << y << ", theta:" << theta << std::endl;
+	// std::cout << "ds: " << ds_ << ", alpha:" << alpha_ << ", alpha2" << alpha2_ << std::endl;
+	if((ds_ >= move_threshold_) || (abs(alpha_) >= move_threshold_) || (abs(alpha2_) >= move_threshold_)) {
 		return true;
 	}
 	else{
@@ -44,8 +46,6 @@ bool ActionModel::updateAction(const pose_xyt_t& odometry)
 
 particle_t ActionModel::applyAction(const particle_t& sample)
 {
-    ////////////// TODO: Implement your code for sampling new poses from the distribution computed in updateAction //////////////////////
-    // Make sure you create a new valid particle_t. Don't forget to set the new time and new parent_pose.
     // create distribution
 	std::normal_distribution<> de1{0, k1_ * alpha_};
 	std::normal_distribution<> de2{0, k2_ * ds_};
@@ -55,9 +55,16 @@ particle_t ActionModel::applyAction(const particle_t& sample)
 	float e3 = de3(gen);
 
     float new_x = sample.pose.x + (ds_ + e2) * cos(sample.pose.theta + alpha_ + e1);
-	float new_y = sample.pose.x + (ds_ + e2) * sin(sample.pose.theta + alpha_ + e1);
-	float new_theta = sample.pose.theta + e1 + e3;
-    
+	float new_y = sample.pose.y + (ds_ + e2) * sin(sample.pose.theta + alpha_ + e1);
+	float new_theta = sample.pose.theta + alpha_ + alpha2_ + e1 + e3;
+
+    // normalize new_theta
+	while(new_theta <= 0) {
+		new_theta += 2 * M_PI;
+	}
+	while(new_theta > 2 * M_PI) {
+		new_theta -= 2 * M_PI;
+	}
 	particle_t new_sample;
 	new_sample.pose.x = new_x;
 	new_sample.pose.y = new_y;
