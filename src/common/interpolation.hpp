@@ -39,7 +39,9 @@ Pose interpolate_pose_by_time(int64_t time, const Pose& before, const Pose& afte
     double xStep     = (after.x - before.x) * interpolateRatio;
     double yStep     = (after.y - before.y) * interpolateRatio;
     double thetaStep = angle_diff(after.theta, before.theta) * interpolateRatio;
-    
+    // std::cout << "I:" << interpolateRatio << ", T:" << time << ", BT:" << before.utime << ", AT:" << after.utime << std::endl;
+    // std::cout << "At:" << after.theta << ", BT:" << before.theta << ", TT:" << thetaStep << std::endl;
+
     Pose interpolated;
     interpolated.utime = time;
     interpolated.x     = before.x + xStep;

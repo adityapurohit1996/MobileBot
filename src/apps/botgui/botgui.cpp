@@ -200,7 +200,8 @@ void BotGui::onDisplayStart(vx_display_t* display)
     lcmInstance_->subscribe(SLAM_MAP_CHANNEL, &BotGui::handleOccupancyGrid, this);
     lcmInstance_->subscribe(SLAM_PARTICLES_CHANNEL, &BotGui::handleParticles, this);
     lcmInstance_->subscribe(CONTROLLER_PATH_CHANNEL, &BotGui::handlePath, this);
-    lcmInstance_->subscribe(LIDAR_CHANNEL, &BotGui::handleLaser, this);
+    // lcmInstance_->subscribe(LIDAR_CHANNEL, &BotGui::handleLaser, this);
+    lcmInstance_->subscribe(SLAM_LIDAR_CHANNEL, &BotGui::handleLaser, this);
     lcmInstance_->subscribe(".*_POSE", &BotGui::handlePose, this);  // NOTE: Subscribe to ALL _POSE channels!
     lcmInstance_->subscribe(".*ODOMETRY", &BotGui::handleOdometry, this); // NOTE: Subscribe to all channels with odometry in the name
     lcmInstance_->subscribe(EXPLORATION_STATUS_CHANNEL, &BotGui::handleExplorationStatus, this);

@@ -55,7 +55,24 @@ public:
     
 private:
     
-    ////////// TODO: Add private member variables needed for you implementation ///////////////////
+    // random variable initialization
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+
+    // internal variables
+    float x_ = 0;
+    float y_ = 0;
+    float theta_ = 0;
+    int64_t u_time_ = 0;
+
+    float alpha_ = 0;
+    float alpha2_ = 0;
+    float ds_ = 0;
+
+    float k1_ = 0.5;
+    float k2_ = 1.0;
+
+    float move_threshold_ = 1e-3;
 };
 
 #endif // SLAM_ACTION_MODEL_HPP

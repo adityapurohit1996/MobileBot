@@ -82,7 +82,7 @@ private:
     
     // Data being used for current SLAM iteration
     lidar_t currentScan_;
-    pose_xyt_t      currentOdometry_;
+    pose_xyt_t currentOdometry_;
     
     pose_xyt_t initialPose_;
     pose_xyt_t previousPose_;

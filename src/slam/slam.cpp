@@ -49,6 +49,8 @@ OccupancyGridSLAM::OccupancyGridSLAM(int         numParticles,
     lcm_.subscribe(ODOMETRY_CHANNEL, &OccupancyGridSLAM::handleOdometry, this);
     lcm_.subscribe(TRUE_POSE_CHANNEL, &OccupancyGridSLAM::handleOptitrack, this);
     
+    // Subscribe Ground Truth Pose for Debuging
+    lcm_.subscribe(TRUE_POSE_CHANNEL, &OccupancyGridSLAM::handlePose, this);
     // If we are only building the occupancy grid using ground-truth poses, then subscribe to the ground-truth poses.
     if(mode_ == mapping_only)
     {
@@ -127,8 +129,14 @@ void OccupancyGridSLAM::handleLaser(const lcm::ReceiveBuffer* rbuf, const std::s
 void OccupancyGridSLAM::handleOdometry(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const odometry_t* odometry)
 {
     std::lock_guard<std::mutex> autoLock(dataMutex_);
-
     pose_xyt_t odomPose;
+    // if(odometryPoses_.empty() || (odometry->utime != odometryPoses_.back().utime)) {
+    //     odomPose.utime = odometry->utime;
+    //     odomPose.x = odometry->x;
+    //     odomPose.y = odometry->y;
+    //     odomPose.theta = odometry->theta;
+    //     odometryPoses_.addPose(odomPose);
+    // }   
     odomPose.utime = odometry->utime;
     odomPose.x = odometry->x;
     odomPose.y = odometry->y;
@@ -242,6 +250,8 @@ void OccupancyGridSLAM::initializePosesIfNeeded(void)
         haveInitializedPoses_ = true;
         
         filter_.initializeFilterAtPose(previousPose_);
+        // if kidnapped, then kidnapped initialization
+        std::cout << "Initialized" << std::endl;
     }
     
     assert(haveInitializedPoses_);
@@ -252,13 +262,23 @@ void OccupancyGridSLAM::updateLocalization(void)
 {
     if(haveMap_ && (mode_ != mapping_only))
     {
+        // Test Groud Truth Pose
+        auto gt_pose  = groundTruthPoses_.poseAt(currentScan_.times.back());
+        // auto gt_pose = groundTruthPoses_.back();
+        filter_.UpdateGroundTruth(gt_pose, currentScan_);
         previousPose_ = currentPose_;
         currentPose_  = filter_.updateFilter(currentOdometry_, currentScan_, map_);//, v_, omega_, utime_); //remove last 3 args for odo
-        
+        double pose_likelihood = filter_.sensorModel_.likelihood(previousPose_, currentPose_, currentScan_, map_);
+        std::cout << "PL : " << pose_likelihood << std::endl;
         auto particles = filter_.particles();
-
+        // currentPose_ = gt_pose;
+        // Debug Output
+        lcm_.publish(SLAM_MAP_POSE_CHANNEL, &filter_.sensorModel_.map_particle_.pose);
+        lcm_.publish(SLAM_TRUE_POSE_CHANNEL, &gt_pose);
+        // lcm_.publish(SLAM_POSE_CHANNEL, &gt_pose);
         lcm_.publish(SLAM_POSE_CHANNEL, &currentPose_);
         lcm_.publish(SLAM_PARTICLES_CHANNEL, &particles);
+        lcm_.publish(SLAM_LIDAR_CHANNEL, &currentScan_);
 
    }
 }
@@ -269,9 +289,10 @@ void OccupancyGridSLAM::updateMap(void)
     if(mode_ != localization_only)
     {
         // Process the map
-        
+        std::cout << "Map Updating" << std::endl;
         mapper_.updateMap(currentScan_, previousPose_, currentPose_, map_); //CHANGED THIS to include previous pose as well
         haveMap_ = true;
+        std::cout << "Map Ending" << std::endl;
     }
 
     // Publish the map even in localization-only mode to ensure the visualization is meaningful

@@ -45,6 +45,7 @@ public:
     */
     void initializeFilterAtPose(const pose_xyt_t& pose);
     
+    void KidnappedInitialization(const OccupancyGrid& map, int64_t utime);
     /**
     * updateFilter increments the state estimated by the particle filter. The filter update uses the most recent
     * odometry estimate and laser scan along with the occupancy grid map to estimate the new pose of the robot.
@@ -72,13 +73,16 @@ public:
     */
     particles_t particles(void) const;
     
+    // Debug Test Gt likelihood
+    double UpdateGroundTruth(const pose_xyt_t& pose, const lidar_t& scan);
+
+    ActionModel actionModel_;   // Action model to apply to particles on each update
+    SensorModel sensorModel_;   // Sensor model to compute particle weights
+    bool kidnapped_ = false;  // If the localization is in kidnapped version
 private:
     
     std::vector<particle_t> posterior_;     // The posterior distribution of particles at the end of the previous update
     pose_xyt_t posteriorPose_;              // Pose estimate associated with the posterior distribution
-    
-    ActionModel actionModel_;   // Action model to apply to particles on each update
-    SensorModel sensorModel_;   // Sensor model to compute particle weights
     
     int kNumParticles_;         // Number of particles to use for estimating the pose
     
@@ -88,6 +92,8 @@ private:
                                                        const lidar_t& laser,
                                                        const OccupancyGrid&   map);
     pose_xyt_t estimatePosteriorPose(const std::vector<particle_t>& posterior);
+    // Distribution Parameters
+    float pose_sigmas_[3] = {0.05, 0.05, 0.05};
 };
 
 #endif // SLAM_PARTICLE_FILTER_HPP
