@@ -46,8 +46,11 @@ double SensorModel::GroundTruthLikelihood(const lidar_t& scan, const OccupancyGr
     }
     
     if(valid_array_count <= valid_threshold_) {
-        printf("Valid Array Not Enough");
+        // If not enough array, it's most likely the sample is not working
+        printf("Valid Array Not Enough\n");
+        return 1e-8;
     }
+    
     valid_array_count /= likelihood_amplify;
     double likelihood = exp(log_likelihood / valid_array_count);
     // std::cout << "------------- Ground Truth ----------------" << std::endl;

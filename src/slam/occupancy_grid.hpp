@@ -155,6 +155,16 @@ public:
             }
         }
     }
+
+    float* MapLimitation() const {
+        // x_min, x_max, y_min, y_max
+        float ymax = globalOrigin_.y + height_ * metersPerCell_;
+        float ymin = globalOrigin_.y - height_ * metersPerCell_;
+        float xmax = globalOrigin_.x + width_ * metersPerCell_;
+        float xmin = globalOrigin_.x - width_ * metersPerCell_;
+        float map_limitation[4] = {xmin, xmax, ymin, ymax};
+        return map_limitation;
+    }
     
     void setOrigin(float x, float y);
 

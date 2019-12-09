@@ -250,6 +250,7 @@ void OccupancyGridSLAM::initializePosesIfNeeded(void)
         haveInitializedPoses_ = true;
         
         filter_.initializeFilterAtPose(previousPose_);
+        // if kidnapped, then kidnapped initialization
         std::cout << "Initialized" << std::endl;
     }
     

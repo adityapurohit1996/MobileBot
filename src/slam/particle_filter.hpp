@@ -45,6 +45,7 @@ public:
     */
     void initializeFilterAtPose(const pose_xyt_t& pose);
     
+    void KidnappedInitialization(const OccupancyGrid& map, int64_t utime);
     /**
     * updateFilter increments the state estimated by the particle filter. The filter update uses the most recent
     * odometry estimate and laser scan along with the occupancy grid map to estimate the new pose of the robot.
@@ -77,7 +78,7 @@ public:
 
     ActionModel actionModel_;   // Action model to apply to particles on each update
     SensorModel sensorModel_;   // Sensor model to compute particle weights
-    
+    bool kidnapped_ = false;  // If the localization is in kidnapped version
 private:
     
     std::vector<particle_t> posterior_;     // The posterior distribution of particles at the end of the previous update

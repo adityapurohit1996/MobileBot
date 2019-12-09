@@ -34,6 +34,33 @@ void ParticleFilter::initializeFilterAtPose(const pose_xyt_t& pose)
     posteriorPose_.utime = pose.utime;
 }
 
+void ParticleFilter::KidnappedInitialization(const OccupancyGrid& map, int64_t utime) {
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+
+    float* map_limitation = map.MapLimitation();
+    std::uniform_real_distribution<double> x_d(map_limitation[0], map_limitation[1]);
+    std::uniform_real_distribution<double> y_d(map_limitation[2], map_limitation[3]);
+    std::uniform_real_distribution<double> theta_d(-M_PI, M_PI);
+
+    Point<float> map_origin = map.originInGlobalFrame();
+
+    for(int i = 0; i < kNumParticles_; i++) {
+        particle_t sample_particle;
+        sample_particle.pose.x = x_d(gen);
+        sample_particle.pose.y = y_d(gen);
+        sample_particle.pose.theta = theta_d(gen);
+        sample_particle.weight = 1.0 / kNumParticles_;
+        sample_particle.pose.utime = utime;
+        posterior_[i] = sample_particle;
+    }
+    // posterior pose
+    posteriorPose_.x = map_origin.x;
+    posteriorPose_.y = map_origin.y;
+    posteriorPose_.theta = 0.0;
+    posteriorPose_.utime = utime;
+};
+
 pose_xyt_t ParticleFilter::updateFilter(const pose_xyt_t&      odometry,
                                         const lidar_t& laser,
                                         const OccupancyGrid&   map)
