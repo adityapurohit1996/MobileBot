@@ -59,12 +59,7 @@ particle_t ActionModel::applyAction(const particle_t& sample)
 	float new_theta = sample.pose.theta + alpha_ + alpha2_ + e1 + e3;
 
     // normalize new_theta
-	while(new_theta <= 0) {
-		new_theta += 2 * M_PI;
-	}
-	while(new_theta > 2 * M_PI) {
-		new_theta -= 2 * M_PI;
-	}
+	new_theta = wrap_to_pi(new_theta);
 	particle_t new_sample;
 	new_sample.pose.x = new_x;
 	new_sample.pose.y = new_y;

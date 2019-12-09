@@ -179,8 +179,9 @@ pose_xyt_t ParticleFilter::estimatePosteriorPose(const std::vector<particle_t>& 
     double weight_sum = 1e-8;
     double average_angle = 0.0;
     double sample_angle = 0.0;
-    // All pose has been transformed into (0, 2pi)
-     std::cout << "Compute Theta" << std::endl;
+
+    // All pose has been transformed into (-pi, pi)
+    std::cout << "Compute Theta" << std::endl;
     for(int i = 0; i < kNumParticles_; i++) {
         pose.x += posterior[i].pose.x * posterior[i].weight;
         pose.y += posterior[i].pose.y * posterior[i].weight;
@@ -198,7 +199,21 @@ pose_xyt_t ParticleFilter::estimatePosteriorPose(const std::vector<particle_t>& 
         weight_sum += posterior_[i].weight;
         // std::cout << "theta :" << sample_angle << ", W:" << posterior_[i].weight << std::endl;
     }
-    // pose.theta = sensorModel_.map_particle_.pose.theta;
+
+    // // Another way of averaging theta
+    // double average_sin = 0.0;
+    // double average_cos = 0.0;
+    // for(int i = 0; i < kNumParticles_; i++) {
+    //     pose.x += posterior[i].pose.x * posterior[i].weight;
+    //     pose.y += posterior[i].pose.y * posterior[i].weight;
+    //     // transform angle
+    //     average_sin = sin(posterior[i].pose.theta) * posterior[i].weight;
+    //     average_cos = cos(posterior[i].pose.theta) * posterior[i].weight;
+    // }
+    // double a_angle = atan2(average_sin, average_cos);
+    // if(average_cos < 0) {
+    //     a_angle += M_PI;
+    // }
+    // pose.theta = a_angle;
     return pose;
-    // return sensorModel_.map_particle_.pose;
 }
