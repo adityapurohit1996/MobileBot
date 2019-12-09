@@ -19,17 +19,12 @@ struct Node
     int parentY;
      float hCost;
 };
-/*
-inline bool operator < (const Node& lhs, const Node& rhs)
-{//We need to overload "<" to put our struct into a set
-    return lhs.hCost < rhs.hCost;
-}
-*/
+
 
 bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX, double minDistanceToObstacle) 
 { //If our Node is an obstacle it is not valid
        // cout<<"goal distance"<<distances_x_y<<endl;
-        if (distances_x_y < minDistanceToObstacle) 
+        if (distances_x_y < 1.2*minDistanceToObstacle) 
         {
             return false;
         }
@@ -56,16 +51,16 @@ bool isDestination(int x, int y, pose_xyt_t goal_cell)
     return false;
 }
 
-double calculateH(int x, int y, pose_xyt_t goal_cell) 
+double calculateH(int x, int y, pose_xyt_t goal_cell) //Simole heuristics I am not adding information of closeness to obstacle in the heurisitics
 {
         double H = (sqrt((x - goal_cell.x)*(x - goal_cell.x)
             + (y - goal_cell.y)*(y - goal_cell.y)));
         return H;
 }
-
+/*
+//Function directly implemented in the main function because of some parameter passing issues.
 robot_path_t makePath(Node map[][MAXIMUM_Y], pose_xyt_t goal_cell,pose_xyt_t goal, ObstacleDistanceGrid& distances) 
 {
-            //cout << "Found a path" << endl;
             int x = goal_cell.x;
             int y = goal_cell.y;
             pose_xyt_t pose;
@@ -100,18 +95,19 @@ robot_path_t makePath(Node map[][MAXIMUM_Y], pose_xyt_t goal_cell,pose_xyt_t goa
             
             return solution;
 }
-
+*/
 robot_path_t search_for_path(pose_xyt_t start, 
                              pose_xyt_t goal, 
                              const ObstacleDistanceGrid& distances,
                              const SearchParams& params)
 {
 
-    //cout<<"Finding path by A_star"<<endl;
-    robot_path_t path;
+    robot_path_t path; // Variable with all poses of the path
     
     unsigned int X_MAX = distances.widthInCells();
     unsigned int Y_MAX = distances.heightInCells();
+
+    //conversion from global coordinates to cell coordinates
     pose_xyt_t start_cell, goal_cell;
     Point<int> temp;
     temp = global_position_to_grid_cell(Point<float>(start.x,start.y),distances);
@@ -121,9 +117,9 @@ robot_path_t search_for_path(pose_xyt_t start,
     goal_cell.x = temp.x;
     goal_cell.y = temp.y;
 
+    //////////////// Sanity checks //////////////////////////
     
-    
-    if (isValid(goal_cell.x,goal_cell.y,distances(goal_cell.x,goal_cell.y),X_MAX,Y_MAX,SearchParams.minDistanceToObstacle) == false) 
+    if (isValid(goal_cell.x,goal_cell.y,distances(goal_cell.x,goal_cell.y),X_MAX,Y_MAX,params.minDistanceToObstacle) == false) 
     {
         cout << "Destination is an obstacle" << endl;
         //Destination is invalid
@@ -134,10 +130,11 @@ robot_path_t search_for_path(pose_xyt_t start,
     }
     else
     {
-        
+        //////////// start A_star //////////////////
         bool closedList[X_MAX][Y_MAX];
         Node allMap[X_MAX][MAXIMUM_Y]; 
         
+        ///////////// initialize everything to max value first //////////////////
         for (int x = 0; x < X_MAX; x++) {
             for (int y = 0; y < Y_MAX; y++) {
                 
@@ -150,7 +147,7 @@ robot_path_t search_for_path(pose_xyt_t start,
             }
         }
         
-        //Initialize our start_celling list
+        //Initialize our start list
         int x = start_cell.x;
         int y = start_cell.y;
         allMap[x][y].hCost = 0.0;
@@ -161,24 +158,19 @@ robot_path_t search_for_path(pose_xyt_t start,
         openList.emplace_back(allMap[x][y]);
         bool destinationFound = false;
         cout<<openList.size()<<endl;
+
+        
         while (!openList.empty()&&openList.size()<X_MAX*Y_MAX) 
         {
-            if(destinationFound)break;
-            //cout<<"Inside while"<<endl;
+            if(destinationFound)break; 
             Node node;
-                //This do-while loop could be replaced with extracting the first
-                //element from a set, but you'd have to make the openList a set.
-                //To be completely honest, I don't remember the reason why I do
-                //it with a vector, but for now it's still an option, although
-                //not as good as a set performance wise.
-            
+            //// Insert start node to open list //////
             node = *openList.begin();
             openList.erase(openList.begin());
 
             x = node.x;
             y = node.y;
             closedList[x][y] = true;
-            //cout<<x<<" "<<y<<endl;
             //For each neighbour starting from North-West to South-East
             for (int newX = -1; newX <= 1; newX++) 
             {
@@ -191,7 +183,7 @@ robot_path_t search_for_path(pose_xyt_t start,
                     double gNew, hNew, fNew;
                     if(x+newX>=0 && y+newY>=0)
                     { 
-                        if (isValid(x + newX, y + newY,distances(x + newX, y + newY),X_MAX,Y_MAX,SearchParams.minDistanceToObstacle)) 
+                        if (isValid(x + newX, y + newY,distances(x + newX, y + newY), X_MAX, Y_MAX, params.minDistanceToObstacle)) 
                         {
                             if (isDestination(x + newX, y + newY, goal_cell))
                             {
@@ -230,20 +222,18 @@ robot_path_t search_for_path(pose_xyt_t start,
                                         path.path.insert(path.path.begin(),pose);
                                     }
 
-            }
+                                }
                             }
                             else if (closedList[x + newX][y + newY] == false)
                             {
                                 //gNew = node.gCost + 1.0;
                                 hNew = calculateH(x + newX, y + newY, goal_cell);
-                                //fNew = gNew + hNew;
                                 // Check if this path is better than the one already present
                                 if (allMap[x + newX][y + newY].hCost == FLT_MAX ||
                                     allMap[x + newX][y + newY].hCost > hNew)
                                 {
                                     // Update the details of this neighbour node
-                                    //allMap[x + newX][y + newY].fCost = fNew;
-                                    //allMap[x + newX][y + newY].gCost = gNew;
+                                    
                                     allMap[x + newX][y + newY].hCost = hNew;
                                     allMap[x + newX][y + newY].parentX = x;
                                     allMap[x + newX][y + newY].parentY = y;
