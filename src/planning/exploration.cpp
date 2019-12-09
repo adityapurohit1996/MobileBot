@@ -244,6 +244,24 @@ int8_t Exploration::executeExploringMap(bool initialize)
     *       -- You will likely be able to see the frontier before actually reaching the end of the path leading to it.
     */
     
+    
+    std::vector<frontier_t> frontier = find_map_frontiers(currentMap_, currentPose_);
+    if (frontier.size()){
+        while(frontier.size()){
+            frontier_.push_back(frontier.back());
+            frontier.pop_back();
+        }
+    }
+    if (frontier_.empty != true){
+            frontier = frontier_.back();
+            goal_i = (int) frontier.size()/2;
+            currentTarget_ = frontier[goal_i]
+            currentPath_.insert(currentPath_.end(),planner_.planPath(currentPose_, currentTarget_))
+            frontier_.pop_back()
+        }
+ 
+    
+    
     /////////////////////////////// End student code ///////////////////////////////
     
     /////////////////////////   Create the status message    //////////////////////////
@@ -301,6 +319,10 @@ int8_t Exploration::executeReturningHome(bool initialize)
     *       (1) dist(currentPose_, targetPose_) < kReachedPositionThreshold  :  reached the home pose
     *       (2) currentPath_.path_length > 1  :  currently following a path to the home pose
     */
+    
+    
+    
+    
     
 
 
