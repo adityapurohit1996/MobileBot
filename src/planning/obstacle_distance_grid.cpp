@@ -58,12 +58,11 @@ void ObstacleDistanceGrid::setDistances(const OccupancyGrid& map)
 
         }
     }
-        cout << cells2Update << endl;
-
+       
         int curr_distance = 1;
 
         // updating the map
-        while (cells2Update != 0){
+        while (cells2Update > 0){
             for(int cell_y = 0; cell_y < height_; ++cell_y)
             {
                 for (int cell_x = 0; cell_x < width_; ++cell_x)
@@ -105,17 +104,22 @@ void ObstacleDistanceGrid::setDistances(const OccupancyGrid& map)
                         }
 
                     }
+                   // cout << cell_x<< cell_y << endl;
                 }
             }
 
             curr_distance+=1;
+
         }
 
-        for(int grid_y = 0; grid_y < height_; ++grid_y){
-            for (int grid_x = 0; grid_x < width_; ++grid_x){
+        for(int grid_y = 0; grid_y < height_; ++grid_y)
+        {
+            for (int grid_x = 0; grid_x < width_; ++grid_x)
+            {
                 cells_[cellIndex(grid_x, grid_y)] = (distance(grid_x, grid_y) - 1)*metersPerCell_;
             }
         }
+        cout<<"exiting obstacle distance grid"<<endl;
 }
 
 
