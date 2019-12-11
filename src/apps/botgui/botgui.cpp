@@ -113,7 +113,7 @@ int BotGui::onMouseEvent(vx_layer_t* layer,
         lcmInstance_->publish(CONTROLLER_PATH_CHANNEL, &path);
     }
     // If an Right-click, send a target to the A* planner
-    else if((event->button_mask & VX_BUTTON3_MASK) && (event->modifiers == 0))
+    else if((event->button_mask & VX_BUTTON3_MASK)) // && (event->modifiers == 0)
     {
         std::cout << "Planning path to " << worldPoint << "...";
         int64_t startTime = utime_now();
@@ -594,27 +594,7 @@ void BotGui::createGuiLayout(GtkWidget* window, GtkWidget* vxCanvas)
     
     GtkWidget* dataSeparator = gtk_hseparator_new();
     gtk_box_pack_start(GTK_BOX(optionsBox_), dataSeparator, FALSE, TRUE, 0);
-    
-    //////////  Sliders for adjusting the commanded speed  ////////////
-    GtkWidget* cmdLabel = gtk_label_new("Command Speed:");
-    gtk_box_pack_start(GTK_BOX(optionsBox_), cmdLabel, FALSE, TRUE, 0);
-    
-    cmdSlider_ = gtk_hscale_new_with_range(0.0, 1.0, 0.01);
-    gtk_scale_set_digits(GTK_SCALE(cmdSlider_), 2);
-    gtk_range_set_value(GTK_RANGE(cmdSlider_), 0.6);
-    gtk_box_pack_start(GTK_BOX(optionsBox_), cmdSlider_, FALSE, TRUE, 0);
-    
-    GtkWidget* trimLabel = gtk_label_new("Right Wheel Trim: (%)");
-    gtk_box_pack_start(GTK_BOX(optionsBox_), trimLabel, FALSE, TRUE, 0);
-    
-    trimSlider_ = gtk_hscale_new_with_range(-50.0, 50.0, 1.0);
-    gtk_scale_set_digits(GTK_SCALE(trimSlider_), 2);
-    gtk_range_set_value(GTK_RANGE(trimSlider_), 0.0);
-    gtk_box_pack_start(GTK_BOX(optionsBox_), trimSlider_, FALSE, TRUE, 0);
-    
-    GtkWidget* cmdSeparator = gtk_hseparator_new();
-    gtk_box_pack_start(GTK_BOX(optionsBox_), cmdSeparator, FALSE, TRUE, 0);
-    
+
     //////////////   Area where pose traces will be added   ////////////////
     GtkWidget* traceLabel = gtk_label_new("Available Pose Traces:");
     gtk_box_pack_start(GTK_BOX(optionsBox_), traceLabel, FALSE, TRUE, 0);
