@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <vector>
 #include <math.h>
-#include <complex.h>
+#include <complex>
 
 typedef int8_t CellOdds;   ///< Type used to represent the data in a cell
 

@@ -3,7 +3,7 @@
 # NOTE: REMOVED planning FROM SUBDIRS FOR TESTING ADD IT COMPILING ISSUES 
 SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam apps mbot optitrack
 MBOT_SUBDIRS = lcmtypes common vx/math slam mbot
-LAPTOP_SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk slam apps
+LAPTOP_SUBDIRS = lcmtypes common imagesource vx/math vx vx/gtk planning slam apps
 
 MAKEFLAGS += --no-print-directory
 

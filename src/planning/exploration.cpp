@@ -244,28 +244,32 @@ int8_t Exploration::executeExploringMap(bool initialize)
     *       -- You will likely be able to see the frontier before actually reaching the end of the path leading to it.
     */
     
-    planner_.setMap(currentMap_)
-    std::vector<frontier_t> frontier = find_map_frontiers(currentMap_, currentPose_);
+    planner_.setMap(currentMap_);
+    std::vector<frontier_t> frontier;
+    frontier = find_map_frontiers(currentMap_, currentPose_);
     if (frontier.size()){
         while(frontier.size()){
-            frontier_.push_back(frontier.back());
+            frontiers_.push_back(frontier.back());
             frontier.pop_back();
         }
     }
-    if (frontier_.empty != true){
-            frontier = frontier_.back();
-            goal_i = (int) frontier.size()/2;
-            currentTarget_ = frontier[goal_i];
-            frontier_.pop_back();
+    frontier_t frontier_single;
+    if (frontiers_.empty() != true){
+            frontier_single = frontiers_.back();
+            currentTarget_.x = frontier_single.cells[(int) frontier_single.cells.size()/2].x;
+            currentTarget_.y = frontier_single.cells[(int) frontier_single.cells.size()/2].y;
+            currentTarget_.theta = 0;
+            frontiers_.pop_back();
             
-            while(planner_.isValidGoal(currentTarget) != true){
-                frontier = frontier_.back();
-                goal_i = (int) frontier.size()/2;
-                currentTarget_ = frontier[goal_i];
+            while(planner_.isValidGoal(currentTarget_) != true){
+                frontier_single = frontiers_.back();
+                currentTarget_.x = frontier_single.cells[(int) frontier_single.cells.size()/2].x;
+                currentTarget_.y = frontier_single.cells[(int) frontier_single.cells.size()/2].y;
+                currentTarget_.theta = 0;
                 //currentPath_.insert(currentPath_.end(),planner_.planPath(currentPose_, currentTarget_))
-                frontier_.pop_back();
+                frontiers_.pop_back();
             }
-            if(frontier_.empty() == true && planner_.isValidGoal(currentTarget)){
+            if(frontiers_.empty() == true && planner_.isValidGoal(currentTarget_)){
                 currentPath_ = planner_.planPath(currentPose_, currentTarget_);
             }
 
@@ -331,9 +335,9 @@ int8_t Exploration::executeReturningHome(bool initialize)
     *       (1) dist(currentPose_, targetPose_) < kReachedPositionThreshold  :  reached the home pose
     *       (2) currentPath_.path_length > 1  :  currently following a path to the home pose
     */
-    while((dist(currentPose_, homePose_) < kReachedPositionThreshold) != true){
-        currentPath_ = planner_.search_for_path(currentPose_,targetPose_);
-    }
+    //while((dist(currentPose_, homePose_) < kReachedPositionThreshold) != true){
+      //  currentPath_ = planner_.planPath(currentPose_,homePose_);
+    //}
     
     
     
