@@ -7,7 +7,7 @@
 #define FLT_MAX 10000
 #define MAXIMUM_X 1000
 #define MAXIMUM_Y 1000
-#define MIN_DISTANCE 0.15
+#define BOT_DISTANCE_MULTIPLIER 1
 
 
 using namespace std;
@@ -24,7 +24,7 @@ struct Node
 bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX, double minDistanceToObstacle) 
 { //If our Node is an obstacle it is not valid
        // cout<<"goal distance"<<distances_x_y<<endl;
-        if (distances_x_y < 1.2*minDistanceToObstacle) 
+        if (distances_x_y < BOT_DISTANCE_MULTIPLIER*minDistanceToObstacle) 
         {
             return false;
         }
