@@ -77,7 +77,8 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
     }
 
     if(valid_array_count <= valid_threshold_) {
-        printf("Valid Array Not Enough");
+        printf("Valid Array Not Enough\n");
+        return 1e-8;
     }
     valid_array_count /= likelihood_amplify;
     double likelihood = exp(log_likelihood / valid_array_count);
@@ -231,7 +232,12 @@ float SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const Occu
             y += sy;
         }
         // check if this is occupied:
+        if (std::abs(x) > 10000) {
+            return -1;
+        }
+            
         cell_odd = map(x, y);
+        
         if(cell_odd > odds_threshold_) {
             // meet with the obstacle
             Point<float> hit_global_frame = map.CoordToGlobalFrame(x, y);
