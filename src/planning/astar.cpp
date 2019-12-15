@@ -17,7 +17,7 @@ using namespace std;
 bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX, double minDistanceToObstacle) 
 { //If our Node is an obstacle it is not valid
        // cout<<"goal distance"<<distances_x_y<<endl;
-        if (distances_x_y < 1.2*minDistanceToObstacle) 
+        if (distances_x_y < BOT_DISTANCE_MULTIPLIER*minDistanceToObstacle) 
         {
             return false;
         }

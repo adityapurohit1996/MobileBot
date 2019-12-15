@@ -72,7 +72,7 @@ private:
     float k1_ = 0.5;
     float k2_ = 1.0;
 
-    float move_threshold_ = 1e-3;
+    float move_threshold_ = 1e-2;
 };
 
 #endif // SLAM_ACTION_MODEL_HPP

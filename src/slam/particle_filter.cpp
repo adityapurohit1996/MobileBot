@@ -159,8 +159,8 @@ std::vector<particle_t> ParticleFilter::computeNormalizedPosterior(const std::ve
     double weight_sum = 0;
     std::vector<double> weights;
     // Test Gt likelihood
-    double gt_likelihood = sensorModel_.GroundTruthLikelihood(laser, map);
-    std::cout << "Gt L :" << gt_likelihood << std::endl;
+    // double gt_likelihood = sensorModel_.GroundTruthLikelihood(laser, map);
+    // std::cout << "Gt L :" << gt_likelihood << std::endl;
     for(int i = 0; i < kNumParticles_; i++) {
         double likelihood = sensorModel_.likelihood(proposal[i], laser, map);
         weight_sum += likelihood;

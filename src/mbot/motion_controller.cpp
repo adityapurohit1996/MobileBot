@@ -74,7 +74,7 @@ public:
         const float kPTurnGain = 10.0f;
         const float kDesiredSpeed = 0.2f;
         const float kMinSpeed = 0.1f;
-        const float kTurnSpeed = 1.0f;
+        const float kTurnSpeed = 10.0f;
         const float kTurnMaxSpeed = 0.6f;
         const float slowDownDistance = 0.4f;
         

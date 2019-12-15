@@ -36,7 +36,7 @@ bool ActionModel::updateAction(const pose_xyt_t& odometry)
 	// std::cout <<"=======================================" << std::endl;
 	// std::cout << "x: " << x << ", y:" << y << ", theta:" << theta << std::endl;
 	// std::cout << "ds: " << ds_ << ", alpha:" << alpha_ << ", alpha2" << alpha2_ << std::endl;
-	if((ds_ >= move_threshold_) || (abs(alpha_) >= move_threshold_) || (abs(alpha2_) >= move_threshold_)) {
+	if((ds_ >= move_threshold_) || (std::abs(alpha_) >= move_threshold_) || (std::abs(alpha2_) >= move_threshold_)) {
 		return true;
 	}
 	else{

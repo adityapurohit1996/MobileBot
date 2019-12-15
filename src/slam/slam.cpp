@@ -263,9 +263,9 @@ void OccupancyGridSLAM::updateLocalization(void)
     if(haveMap_ && (mode_ != mapping_only))
     {
         // Test Groud Truth Pose
-        auto gt_pose  = groundTruthPoses_.poseAt(currentScan_.times.back());
+        // auto gt_pose  = groundTruthPoses_.poseAt(currentScan_.times.back());
         // auto gt_pose = groundTruthPoses_.back();
-        filter_.UpdateGroundTruth(gt_pose, currentScan_);
+        // filter_.UpdateGroundTruth(gt_pose, currentScan_);
         previousPose_ = currentPose_;
         currentPose_  = filter_.updateFilter(currentOdometry_, currentScan_, map_);//, v_, omega_, utime_); //remove last 3 args for odo
         double pose_likelihood = filter_.sensorModel_.likelihood(previousPose_, currentPose_, currentScan_, map_);
@@ -274,7 +274,7 @@ void OccupancyGridSLAM::updateLocalization(void)
         // currentPose_ = gt_pose;
         // Debug Output
         lcm_.publish(SLAM_MAP_POSE_CHANNEL, &filter_.sensorModel_.map_particle_.pose);
-        lcm_.publish(SLAM_TRUE_POSE_CHANNEL, &gt_pose);
+        // lcm_.publish(SLAM_TRUE_POSE_CHANNEL, &gt_pose);
         // lcm_.publish(SLAM_POSE_CHANNEL, &gt_pose);
         lcm_.publish(SLAM_POSE_CHANNEL, &currentPose_);
         lcm_.publish(SLAM_PARTICLES_CHANNEL, &particles);
