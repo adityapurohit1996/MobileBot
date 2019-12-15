@@ -8,7 +8,7 @@
 #define MAXIMUM_X 400
 #define MAXIMUM_Y 400
 #define MIN_DISTANCE 0.15
-
+#define BOT_DISTANCE_MULTIPLIER 1
 
 using namespace std;
 
