@@ -69,10 +69,10 @@ private:
     float alpha2_ = 0;
     float ds_ = 0;
 
-    float k1_ = 0.1;
-    float k2_ = 0.1;
+    float k1_ = 0.5;
+    float k2_ = 1.0;
 
-    float move_threshold_ = 0.01;
+    float move_threshold_ = 1e-2;
 };
 
 #endif // SLAM_ACTION_MODEL_HPP
