@@ -23,6 +23,16 @@ struct SearchParams
                                     ///< for cellDistance > minDistanceToObstacle && cellDistance < maxDistanceWithCost
 };
 
+struct Node
+{
+     int y;
+    int x;
+    int parentX;
+    int parentY;
+     float hCost;
+     float gCost;
+     float fCost;
+};
 
 /**
 * search_for_path uses an A* search to find a path from the start to goal poses. The search assumes a circular robot
