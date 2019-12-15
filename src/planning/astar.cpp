@@ -5,20 +5,13 @@
 #include<common/grid_utils.hpp>
 
 #define FLT_MAX 10000
-#define MAXIMUM_X 1000
-#define MAXIMUM_Y 1000
+#define MAXIMUM_X 400
+#define MAXIMUM_Y 400
 #define MIN_DISTANCE 0.15
 
 
 using namespace std;
-struct Node
-{
-     int y;
-    int x;
-    int parentX;
-    int parentY;
-     float hCost;
-};
+
 
 
 bool isValid(int x,int y, float distances_x_y,int X_MAX, int Y_MAX, double minDistanceToObstacle) 
@@ -113,10 +106,11 @@ robot_path_t search_for_path(pose_xyt_t start,
     temp = global_position_to_grid_cell(Point<float>(start.x,start.y),distances);
     start_cell.x = temp.x;
     start_cell.y = temp.y;
+    //cout<<"start cell"<<" "<<start_cell.x<<" "<<start_cell.y<<endl;
     temp = global_position_to_grid_cell(Point<float>(goal.x,goal.y),distances);
     goal_cell.x = temp.x;
     goal_cell.y = temp.y;
-
+    //cout<<"goal cell"<<" "<<goal_cell.x<<" "<<goal_cell.y<<endl;
     //////////////// Sanity checks //////////////////////////
     
     if (isValid(goal_cell.x,goal_cell.y,distances(goal_cell.x,goal_cell.y),X_MAX,Y_MAX,params.minDistanceToObstacle) == false) 
@@ -137,8 +131,9 @@ robot_path_t search_for_path(pose_xyt_t start,
         ///////////// initialize everything to max value first //////////////////
         for (int x = 0; x < X_MAX; x++) {
             for (int y = 0; y < Y_MAX; y++) {
-                
                 allMap[x][y].hCost = FLT_MAX;
+                allMap[x][y].gCost = FLT_MAX;
+                allMap[x][y].fCost = FLT_MAX;
                 allMap[x][y].parentX = -1;
                 allMap[x][y].parentY = -1;
                 allMap[x][y].x = x;
@@ -151,26 +146,45 @@ robot_path_t search_for_path(pose_xyt_t start,
         int x = start_cell.x;
         int y = start_cell.y;
         allMap[x][y].hCost = 0.0;
+        allMap[x][y].gCost = 0.0;
+        allMap[x][y].fCost = 0.0;
         allMap[x][y].parentX = x;
         allMap[x][y].parentY = y;
+
 
         vector<Node> openList;  
         openList.emplace_back(allMap[x][y]);
         bool destinationFound = false;
-        cout<<openList.size()<<endl;
+        
 
         
         while (!openList.empty()&&openList.size()<X_MAX*Y_MAX) 
         {
+            //cout<<"openlist size  "<<openList.size()<<endl;
             if(destinationFound)break; 
             Node node;
-            //// Insert start node to open list //////
-            node = *openList.begin();
-            openList.erase(openList.begin());
-
+            
+                
+            float temp = FLT_MAX+1;
+            //vector<Node>::iterator itNode; 
+            int iter;
+            int smallest=0;
+            for (iter= 0; iter < openList.size();iter++)
+            {
+                if (openList[iter].fCost < temp) 
+                {
+                    temp = openList[iter].fCost;
+                    smallest = iter;
+                }
+            }
+            node= openList[smallest];
+            openList.erase(openList.begin()+smallest);
+                
+            //cout<<node.x<<" "<<node.y<<endl;
             x = node.x;
             y = node.y;
             closedList[x][y] = true;
+
             //For each neighbour starting from North-West to South-East
             for (int newX = -1; newX <= 1; newX++) 
             {
@@ -185,6 +199,7 @@ robot_path_t search_for_path(pose_xyt_t start,
                     { 
                         if (isValid(x + newX, y + newY,distances(x + newX, y + newY), X_MAX, Y_MAX, params.minDistanceToObstacle)) 
                         {
+                            //cout<<"Found valid cells"<<endl;
                             if (isDestination(x + newX, y + newY, goal_cell))
                             {
                                 //Destination found - make path
@@ -202,21 +217,24 @@ robot_path_t search_for_path(pose_xyt_t start,
                                 pose.y = goal.y;
                                 pose.theta = goal.theta;
                                 path.path.insert(path.path.begin(),pose); // insert goal first
-                                while (allMap[x_g][y].parentX != allMap[x_g][y_g].x && allMap[x_g][y_g].parentY != allMap[x_g][y_g].y)
-                                    
+                                cout<<allMap[x_g][y_g].parentX<<"  "<<allMap[x_g][y_g].x<<allMap[x_g][y_g].parentY<<" "<<allMap[x_g][y_g].y<<endl;
+                                while ((allMap[x_g][y_g].parentX != allMap[x_g][y_g].x) || (allMap[x_g][y_g].parentY != allMap[x_g][y_g].y))    
                                 {
+                                    //cout<<"In while"<<endl;
                                     current = allMap[x_g][y_g];
                                     int tempX = allMap[x_g][y_g].parentX;
                                     int tempY = allMap[x_g][y_g].parentY;
                                     x_g = tempX;
                                     y_g = tempY;
                                     previous = allMap[x_g][y_g];
+                                    
                                     if(current.x!=previous.x && current.y!=previous.y) // excluding start point
                                     { 
                                         Point<double> temp;
                                         temp = grid_position_to_global_position(Point<double>(previous.x,previous.y),distances);
                                         pose.x = temp.x;
                                         pose.y = temp.y;
+                                        //cout<<"Pose"<<pose.x<<pose.y<<endl;
                                         //cout<<current.y<<" "<<current.x<<" "<<previous.y<<" "<<previous.x<<endl;
                                         pose.theta = atan((current.y-previous.y)/(current.x-previous.x));
                                         path.path.insert(path.path.begin(),pose);
@@ -226,15 +244,22 @@ robot_path_t search_for_path(pose_xyt_t start,
                             }
                             else if (closedList[x + newX][y + newY] == false)
                             {
-                                //gNew = node.gCost + 1.0;
+                                //cout<<"Found unexplored cells"<<endl;
+                                gNew = node.gCost + 1.0;
+                                //gNew = 0;
                                 hNew = calculateH(x + newX, y + newY, goal_cell);
+                                fNew = gNew + hNew;
+                                //cout<<allMap[x + newX][y + newY].fCost<<endl;
                                 // Check if this path is better than the one already present
-                                if (allMap[x + newX][y + newY].hCost == FLT_MAX ||
-                                    allMap[x + newX][y + newY].hCost > hNew)
+                                if (allMap[x + newX][y + newY].fCost == FLT_MAX ||
+                                    allMap[x + newX][y + newY].fCost > fNew)
                                 {
                                     // Update the details of this neighbour node
-                                    
+                                    //cout<<x+newX<<" "<<y+newY<<endl;
+                                    //cout<<hNew<<" "<<gNew<<" "<<fNew<<endl;
                                     allMap[x + newX][y + newY].hCost = hNew;
+                                    allMap[x + newX][y + newY].gCost = gNew;
+                                    allMap[x + newX][y + newY].fCost = fNew;
                                     allMap[x + newX][y + newY].parentX = x;
                                     allMap[x + newX][y + newY].parentY = y;
                                     openList.emplace_back(allMap[x + newX][y + newY]);
