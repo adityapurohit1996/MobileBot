@@ -262,6 +262,7 @@ void OccupancyGridSLAM::updateLocalization(void)
 {
     if(haveMap_ && (mode_ != mapping_only))
     {
+        std::cout << "Update Localization " << std::endl;
         // Test Groud Truth Pose
         // auto gt_pose  = groundTruthPoses_.poseAt(currentScan_.times.back());
         // auto gt_pose = groundTruthPoses_.back();
