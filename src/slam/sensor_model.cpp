@@ -61,15 +61,16 @@ double SensorModel::GroundTruthLikelihood(const lidar_t& scan, const OccupancyGr
 
 double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, const OccupancyGrid& map)
 {
-    float log_likelihood = 0;
-    float log_likelihood_per_ray = 0;
-    int valid_array_count = 0;
+    float log_likelihood = 1e-6;
+    float log_likelihood_per_ray = 1e-6;
+    double valid_array_count = 1e-6;
     // Start Intepolation over states
     MovingLaserScan movingScan(scan, sample.parent_pose, sample.pose);     //full scan
     for(const auto& ray : movingScan) {
         float range_measure = ray.range;
         float range_map = get_hit_point(ray.origin.x, ray.origin.y, ray.theta, map);
-        if(range_map > 0) {
+        // std::cout << "map: " << range_map << ", measure: " << range_measure << std::endl;
+        if((range_map > 0) && std::abs(range_map) < 10) {
             log_likelihood_per_ray = log(probability_sensor_ray(range_measure, range_map));
             log_likelihood += log_likelihood_per_ray;
             valid_array_count++;
@@ -78,27 +79,28 @@ double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, co
 
     if(valid_array_count <= valid_threshold_) {
         printf("Valid Array Not Enough\n");
-        return 1e-8;
+        std::cout << "Alarm" << std::endl;
+        return 1e-6;
     }
     valid_array_count /= likelihood_amplify;
     double likelihood = exp(log_likelihood / valid_array_count);
     // std::cout << "------------- Sample ----------------" << std::endl;
     // std::cout << "x: " << sample.pose.x << ", y: " << sample.pose.y << ", t: " << sample.pose.theta;
-    // std::cout << ",L: " << likelihood << std::endl;
+    // std::cout << "L1: " << log_likelihood << "Num: " << valid_array_count << std::endl;
     return likelihood;
 }
 
 double SensorModel::likelihood(const pose_xyt_t& start_pose, const pose_xyt_t& end_pose, const lidar_t& scan, const OccupancyGrid& map)
 {
-    float log_likelihood = 0;
-    float log_likelihood_per_ray = 0;
-    int valid_array_count = 0;
+    float log_likelihood = 1e-6;
+    float log_likelihood_per_ray = 1e-6;
+    double valid_array_count = 1e-6;
     // Start Intepolation over states
     MovingLaserScan movingScan(scan, start_pose, end_pose);     //full scan
     for(const auto& ray : movingScan) {
         float range_measure = ray.range;
         float range_map = get_hit_point(ray.origin.x, ray.origin.y, ray.theta, map);
-        if(range_map > 0) {
+        if((range_map > 0) && std::abs(range_map) < 10) {
             log_likelihood_per_ray = log(probability_sensor_ray(range_measure, range_map));
             log_likelihood += log_likelihood_per_ray;
             valid_array_count++;
@@ -152,45 +154,61 @@ void SensorModel::ShowHit(const pose_xyt_t& start_pose, const pose_xyt_t& end_po
     }
 }
 
+// float SensorModel::probability_sensor_ray(float z_t, float z_star) {
+//     // p_hit
+//     float p_hit;
+//     if((z_t <= z_max_) && (z_t >= 0)) {
+//         p_hit = 1.0 / sqrt(2 * M_PI * variance_hit_) * 
+//             exp(-0.5 * pow(z_t - z_star, 2) / variance_hit_);
+//     }
+//     else {
+//         p_hit = 0.0;
+//     }
+//     // p_short
+//     float p_short;
+//     if((z_t <= z_star) && (z_t >= 0)) {
+//         p_short = lambda_short_ * exp(-lambda_short_ * z_t) /
+//                 (1.0 - exp(-lambda_short_ * z_star));
+//     }
+//     else {
+//         p_short = 0.0;
+//     }
+//     // p_0
+//     float p_0;
+//     if(z_t == 0) {
+//         p_0 = 1.0;
+//     }
+//     else {
+//         p_0 = 0.0;
+//     }
+//     // p_rand
+//     float p_rand;
+//     if((z_t <= z_max_) && (z_t >= 0)) {
+//         p_rand = 1.0 / z_max_;
+//     }
+//     else {
+//         p_rand = 0.0;
+//     }
+
+//     return weight_hit_ * p_hit + weight_0_ * p_0 
+//          + weight_short_ * p_short + weight_rand_ * p_rand;
+
+// }
+
 float SensorModel::probability_sensor_ray(float z_t, float z_star) {
-    // p_hit
-    float p_hit;
-    if((z_t <= z_max_) && (z_t >= 0)) {
-        p_hit = 1.0 / sqrt(2 * M_PI * variance_hit_) * 
-            exp(-0.5 * pow(z_t - z_star, 2) / variance_hit_);
+    // discrete probability
+    if(std::abs(z_t - z_star) < 2e-1) {
+        return 1.0;
+    }
+    else if(z_t < z_star) {
+        return 0.5;
+    }
+    else if((z_t - z_star) < 1) {
+        return 0.3;
     }
     else {
-        p_hit = 0.0;
+        return 0.1;
     }
-    // p_short
-    float p_short;
-    if((z_t <= z_star) && (z_t >= 0)) {
-        p_short = lambda_short_ * exp(-lambda_short_ * z_t) /
-                (1.0 - exp(-lambda_short_ * z_star));
-    }
-    else {
-        p_short = 0.0;
-    }
-    // p_0
-    float p_0;
-    if(z_t == 0) {
-        p_0 = 1.0;
-    }
-    else {
-        p_0 = 0.0;
-    }
-    // p_rand
-    float p_rand;
-    if((z_t <= z_max_) && (z_t >= 0)) {
-        p_rand = 1.0 / z_max_;
-    }
-    else {
-        p_rand = 0.0;
-    }
-
-    return weight_hit_ * p_hit + weight_0_ * p_0 
-         + weight_short_ * p_short + weight_rand_ * p_rand;
-
 }
 
 float SensorModel::get_hit_point(float x0_m, float y0_m, float theta, const OccupancyGrid& map) {
@@ -263,6 +281,9 @@ bool SensorModel::JudgeMeasurement(double map_likelihood) {
         return false;
     }
     else {
+        // if good
+        likelihood_count_ = 0.0;
+        likelihood_sum_= 0.0;
         return true;
     }
 }

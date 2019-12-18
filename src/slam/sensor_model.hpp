@@ -57,16 +57,16 @@ private:
     float z_max_ = 10.0;
     float variance_hit_ = 0.2;
     float lambda_short_ = 0.5;
-    float weight_hit_   = 0.9;
+    float weight_hit_   = 0.80;
     float weight_short_ = 0.0;
     float weight_0_   = 0.1;
-    float weight_rand_  = 0.0;
+    float weight_rand_  = 0.1;
 
     int8_t odds_threshold_ = 40;
     int8_t unknown_threshold_ = -40;
     int valid_threshold_ = 5;
 
-    int likelihood_amplify = 12.0;
+    double likelihood_amplify = 12.0;
     // Remove bad measurements
     float likelihood_sum_ = 0.0;
     float likelihood_count_ = 0.0;

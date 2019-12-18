@@ -187,7 +187,7 @@ std::vector<particle_t> ParticleFilter::computeNormalizedPosterior(const std::ve
     double map_likelihood = sensorModel_.map_particle_.weight * weight_sum;
     std::cout << "MAP L:" << map_likelihood << std::endl;
 
-    if(!sensorModel_.JudgeMeasurement(map_likelihood)) {
+    if((!sensorModel_.JudgeMeasurement(map_likelihood)) || map_likelihood < 1e-5) {
         // If measurements bad, do not update weights
         for(auto particle : posterior) {
             particle.weight = 1.0 / kNumParticles_;
